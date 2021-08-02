@@ -6,6 +6,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header text-center">Emails list search</div>
+                <search-component ></search-component>
             </div>
         </div>
         @else

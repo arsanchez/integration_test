@@ -18,6 +18,11 @@ class MailerLiteConnector
         $this->mailerlite_client->subscribers()->get();
 	}
 
+    public function getSubscribers($limit, $offsset, $search)
+    {
+        return $this->mailerlite_client->subscribers()->limit(100)->get();
+    }
+
     public static function isValidKey($api_key) 
     {
         // Testing the API with a simple call

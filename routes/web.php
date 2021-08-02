@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-
+use App\Http\Controllers\MailerLiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +17,4 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::post('/add_key', [HomeController::class, 'addKey']);
+Route::get('/search', [MailerLiteController::class, 'search']);
