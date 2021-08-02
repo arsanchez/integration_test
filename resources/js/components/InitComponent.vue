@@ -28,12 +28,10 @@
 
 <script>
     export default {
-        props: {
-            api_key: String,
-        },
-         data() {
+        data() {
             return {
-                errors: []
+                errors: [],
+                api_key: ''
             };
         },
         mounted() {

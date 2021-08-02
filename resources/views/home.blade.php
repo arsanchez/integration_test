@@ -2,7 +2,7 @@
 @section('content')
 <div class="container">
     <div class="row">
-         @if (!empty($accounts))
+        @if ($valid_key)
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header text-center">Emails list search</div>
