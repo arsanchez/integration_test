@@ -1,6 +1,7 @@
 
 
 CREATE DATABASE integration_test;
+USE integration_test;
 
 # Dump of table system
 # ------------------------------------------------------------

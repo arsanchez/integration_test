@@ -18,3 +18,8 @@ use App\Http\Controllers\MailerLiteController;
 Route::get('/', [HomeController::class, 'index']);
 Route::post('/add_key', [HomeController::class, 'addKey']);
 Route::get('/search', [MailerLiteController::class, 'search']);
+Route::get('/delete/{id}', [MailerLiteController::class, 'delete']);
+Route::get('/add-edit/{id}', [MailerLiteController::class, 'addEdit']);
+Route::post('/save', [MailerLiteController::class, 'save']);
+
+

@@ -21,6 +21,7 @@ window.Vue = require('vue').default;
 
 Vue.component('init-component', require('./components/InitComponent.vue').default);
 Vue.component('search-component', require('./components/SearchComponent.vue').default);
+Vue.component('add-edit-component', require('./components/AddEditComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -37,7 +38,7 @@ import 'jquery/dist/jquery.min.js';
 //Datatable Modules
 import "datatables.net-dt/js/dataTables.dataTables"
 import "datatables.net-dt/css/jquery.dataTables.min.css"
-import $ from 'jquery'; 
+import $ from 'jquery';
 
 window.Vue.use(VueSweetalert2);
 const app = new Vue({

@@ -8,36 +8,83 @@ use App\Util\MailerLiteConnector;
 class MailerLiteController extends Controller
 {
     protected $connector;
+    private $api_stats;
 
     public function __construct(MailerLiteConnector $connector)
     {
         $this->connector = $connector;
+        $this->api_stats  = $this->connector->getAPIStats();
     }
 
-    public function search(Request $request) 
+    public function search(Request $request)
     {
         // Getting the search and paging info
         $start = $request->start;
         $length = $request->length;
         $search = $request->search['value'];
 
-        // Getting and parsing the data 
-        $data = [];
-        $subscribers = $this->connector->getSubscribers($start, $length, $search);
-        foreach ($subscribers as $s) {
-            $subscribe_date = '';
-            $subscribe_time = '';
-            if ($s->date_subscribe) {
-                list($subscribe_date, $subscribe_time) = explode(' ', $$s->date_subscribe);
-            }
-            $data[] = ['email' => $s->email, 'name' => $s->name, 'country' => $s->country_id,'subscribe_date' => $subscribe_date, 'subscribe_time' => $subscribe_time];
+        // Getting and parsing the data
+        $subscribers = $this->connector->getSubscribers($length, $start, $search);
+
+        // Serverside data table
+        $columns = [
+            ['db' => 'email', 'dt' => 0],
+            ['db' => 'name', 'dt' => 1],
+            ['db' => 'country', 'dt' => 2],
+            ['db' => 'subscribe_date', 'dt' => 3],
+            ['db' => 'subscribe_time', 'dt' => 4],
+            ['db' => 'id', 'dt' => 5],
+        ];
+
+        $data = $this->dtOutput($columns, $subscribers, $request);
+        return response()->json($data);
+    }
+
+    public function addEdit($id)
+    {
+        if ($id > 0) {
+            $subscriber = $this->connector->findSubscriber($id);
+        } else {
+            $subscriber = [];
         }
-        dd($data);
+
+        return view('addedit', ['subscriber' => $subscriber]);
+    }
+
+    public function save(Request $request)
+    {
+        // Validating the data
+        $this->validate($request, [
+            'email' => ['required', 'email', function ($attribute, $value, $fail) {
+                if ($request->id > 0) {
+                    return;
+                }
+                $temp_s = $this->connector->findSubscriber($value);
+                if (isset($temp_s->id)) {
+                    $fail('This email is already in use.');
+                }
+            }],
+            'name' => ['required'],
+            'country' => ['required'],
+        ]);
+
+        $subscriber = ['email' => $request->email, 'name' => $request->name, 'fields' => ['country' => $request->country]];
+
+        if ($request->id > 0) {
+
+        } else {
+            return $this->connector->addSubscriber($subscriber);
+        }
+    }
+
+    public function delete($id, Request $request)
+    {
+        return $this->connector->deleteSubscriber($id);
     }
 
     // Custom implementation of the 'data_output' function from 'ssp.class.php'
     // https://github.com/DataTables/DataTables/blob/master/examples/server_side/scripts/ssp.class.php
-    private function dtOutput($columns, $data)
+    private function dtOutput($columns, $data, Request $request)
     {
         $out = array();
 		for ( $i=0, $ien=count($data) ; $i<$ien ; $i++ ) {
@@ -64,8 +111,15 @@ class MailerLiteController extends Controller
 			}
 
 			$out[] = $row;
-		}
+        }
 
-		return $out;
+        $filtered = ($request->search['value']) ? count($data) : intval($this->api_stats->subscribed);
+
+		return [
+			"draw"            => isset ($request->draw) ? intval($request->draw) : 0,
+			"recordsTotal"    => intval($this->api_stats->subscribed),
+			"recordsFiltered" => $filtered,
+			"data"            => $out
+        ];
     }
 }

@@ -3,7 +3,7 @@
         <div class="col-6 bottom-row">
             <button v-on:click="addSubscriber()" class="btn btn-success">Add subscriber</button>
         </div>
-        <div class="col-12 bottom-row scrollable">
+        <div class="col-12 bottom-row scrollable" @click="handleClick">
             <table class="table" id ="subscribers_table">
                 <thead>
                     <tr>
@@ -12,18 +12,11 @@
                     <th scope="col">Country</th>
                     <th scope="col">Subscribe date</th>
                     <th scope="col">Subscribe time</th>
+                    <th scope="col">id</th>
+                    <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="subscriber in subscribers">
-                        <td>{{ subscriber.email }}</td>
-                        <td>{{ subscriber.name }}</td>
-                        <td>{{ subscriber.country }}</td>
-                        <td>{{ subscriber.subscribe_date }}</td>
-                        <td>{{ subscriber.subscribe_time }}</td>
-                        <td><button type="button" v-on:click="deleteSubscriber(listing)" class="btn btn-danger btn-sm">Delete subscriber</button></td>
-                        <td><button type="button" v-on:click="editSubscriber(listing)" class="btn btn-info btn-sm">Edit subscriber</button></td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -35,51 +28,50 @@
 
 export default {
     mounted() {
-        $('#subscribers_table').DataTable({
+        this.table = $('#subscribers_table').DataTable({
             "processing": true,
             "serverSide": true,
-            "ajax": "/search"
+            "ajax": "/search",
+            "searchDelay": 1000,
+            "columnDefs": [
+                {"render": function ( data, type, row ) {
+                    return '<a href="/add-edit/'+row[5]+'" >' + row[0] + '</a>';
+                }, "data": null, "targets": [0]},
+                {"render": function ( data, type, row ) {
+                    return '<button type="button"  data-id="'+ row[5] +'"  class="btn btn-danger btn-xs delete-btn">Delete</button>';
+                }, "data": null, "targets": [6]},
+                {
+                    "targets": [5],
+                    "visible": false
+                }
+            ]
         });
     },
     props: {
-  
     },
     data() {
         return {
-            subscribers: [],
-            page: 1
+            table: 1
         };
     },
     methods: {
-        deleteSubscriber(listing) {
-            // Swal.fire({
-            //     title: 'Are you sure you want to delete this subscriber id ' + subscriber.id +' ?',
-            //     text: 'You will not be able to recover this subscriber!',
-            //     icon: 'warning',
-            //     showCancelButton: true,
-            //     confirmButtonText: 'Yes',
-            //     cancelButtonText: 'No'
-            //     }).then((result) => {
-            //     if (result.isConfirmed) {
-            //         // Deleting the subscriber
-            //         axios.get('/delete', { params: { id: subscriber.id}})
-            //         .then(res =>  {
-            //                 Swal.fire(
-            //                     'Deleted!',
-            //                     'The subscriber has been deleted.',
-            //                     'success'
-            //                 );
-            //             })
-            //         .catch(error => {});
-            //     }
-
-            // });
+        handleClick(e) {
+            if (e.target.matches('.delete-btn')) {
+                this.deleteSubscriber(e.target.dataset.id);
+            }
         },
-        editSubscriber(listing) {
+        deleteSubscriber(subscriber_id) {
+            axios.get('/delete/' + subscriber_id)
+                    .then(res =>  {
+                        this.table.ajax.reload()
+                        })
+                    .catch(error => {});
+        },
+        editSubscriber(subscriber_id) {
             // window.location.href = '/add-edit?id=' + subscriber.id;
         },
         addSubscriber() {
-            // window.location.href = '/add-edit?id=0';
+            window.location.href = '/add-edit/0';
         }
     }
 }
