@@ -1,4 +1,4 @@
-## Mailerlite Integration
+## MailerLite Integration
 
 This is a Mailerlite integration test written by Argenis Sánchez, below you can find the install and testing instructions.
 
