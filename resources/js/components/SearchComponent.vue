@@ -62,9 +62,17 @@ export default {
         },
         deleteSubscriber(subscriber_id) {
             axios.get('/delete/' + subscriber_id)
-                    .then(res =>  {
-                        this.table.ajax.reload()
-                        })
+                    .then(response =>  {
+                        if (response.data.error !== undefined) {
+                            this.$swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: response.data.error.message
+                            });
+                        } else {
+                            this.table.ajax.reload();
+                        }
+                    })
                     .catch(error => {});
         },
         editSubscriber(subscriber_id) {
