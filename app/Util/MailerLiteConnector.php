@@ -56,14 +56,23 @@ class MailerLiteConnector
     public function findSubscriber($id) {
         $subscribers_api = $this->mailerlite_client->subscribers();
         $subscriber =  $subscribers_api->find($id);
-        $key = array_search('country', array_column($subscriber->fields, 'key'));
-        $subscriber->country = $subscriber->fields[$key]->value;
+        $subscriber->country = '';
+        if (isset($subscriber->fields)) {
+            $key = array_search('country', array_column($subscriber->fields, 'key'));
+            $subscriber->country = $subscriber->fields[$key]->value;
+        }
+       
         return $subscriber;
     }
 
     public function addSubscriber($subscriber) {
         $subscribers_api = $this->mailerlite_client->subscribers();
         return $subscribers_api->create($subscriber);
+    }
+
+    public function updateubscriber($id, $subscriber) {
+        $subscribers_api = $this->mailerlite_client->subscribers();
+        return $subscribers_api->update($id, $subscriber);
     }
 
     public function getAPIStats()

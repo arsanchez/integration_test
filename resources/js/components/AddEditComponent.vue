@@ -50,13 +50,24 @@
                     //  Posting the data
                     let id = (this.subscriber.id !== undefined) ? this.subscriber.id : 0;
                     let succes_message = (this.subscriber.id !== undefined) ? 'Subscriber updated successfully': 'Subscriber added successfully';
-                    axios.post( '/save/',{email: this.subscriber.email, name: this.subscriber.name, country: this.subscriber.country}).then(() =>{
-                            this.$swal.fire({
-                                icon: 'success',
-                                title: succes_message,
-                            }).then(() => {
-                                window.location.href = '/';
-                            });
+                    axios.post( '/save/',{email: this.subscriber.email, name: this.subscriber.name, country: this.subscriber.country, id: this.subscriber.id}).then((response) =>{
+                            // Displaying any API error
+                            if (response.data.error !== undefined) {
+                                this.$swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    title: response.data.error.message,
+                                });
+                            } else {
+                                this.$swal.fire({
+                                    icon: 'success',
+                                    title: succes_message,
+                                }).then(() => {
+                                    window.location.href = '/';
+                                });
+                            }
+                            console.log(response);
+                            
                         })
                     .catch((err) => {
                         let errors = Object.values(err.response.data.errors).join(",");

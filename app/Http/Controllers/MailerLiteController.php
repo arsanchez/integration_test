@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Util\MailerLiteConnector;
+use App\Rules\UniqueEmail;
 
 class MailerLiteController extends Controller
 {
@@ -44,6 +45,7 @@ class MailerLiteController extends Controller
     {
         if ($id > 0) {
             $subscriber = $this->connector->findSubscriber($id);
+            $subscriber->id = strval($subscriber->id);
         } else {
             $subscriber = [];
         }
@@ -55,15 +57,7 @@ class MailerLiteController extends Controller
     {
         // Validating the data
         $this->validate($request, [
-            'email' => ['required', 'email', function ($attribute, $value, $fail) {
-                if ($request->id > 0) {
-                    return;
-                }
-                $temp_s = $this->connector->findSubscriber($value);
-                if (isset($temp_s->id)) {
-                    $fail('This email is already in use.');
-                }
-            }],
+            'email' => ['required', 'email', new UniqueEmail($request->id, $this->connector)],
             'name' => ['required'],
             'country' => ['required'],
         ]);
@@ -71,7 +65,7 @@ class MailerLiteController extends Controller
         $subscriber = ['email' => $request->email, 'name' => $request->name, 'fields' => ['country' => $request->country]];
 
         if ($request->id > 0) {
-
+            return $this->connector->updateubscriber($request->id, $subscriber);
         } else {
             return $this->connector->addSubscriber($subscriber);
         }
