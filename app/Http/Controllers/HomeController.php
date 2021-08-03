@@ -29,7 +29,8 @@ class HomeController extends Controller
             }],
         ]);
 
-        // Checking if the key is valid
+        // Deleting any previous keys
+        System::truncate();
         return System::Create(['key' => $request->api_key]);
 
     }

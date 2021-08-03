@@ -72,5 +72,15 @@ class FormTest extends TestCase
         ]);
     }
 
+    public function test_invalid_api()
+    {
+        $response = $this->postJson('/add_key', ['api_key' => 'asas']);
+        $response->assertStatus(422);
+
+        // Testing the message 
+        $data = json_decode($response->content());
+        $this->assertEquals('The API key is invalid.', $data->errors->api_key[0]);
+    }
+    
 
 }
